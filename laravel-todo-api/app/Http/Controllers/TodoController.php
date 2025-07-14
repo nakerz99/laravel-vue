@@ -4,15 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Todo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
 {
+    /**
+     * Constructor for TodoController
+     * Note: We're using the auth:sanctum middleware in the routes file
+     * so we don't need to apply it here
+     */
+    public function __construct()
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $todos = Todo::orderBy('created_at', 'desc')->get();
+        // Get todos for the authenticated user
+        $todos = Todo::where('user_id', Auth::id())
+                     ->orderBy('created_at', 'desc')
+                     ->get();
+        
         return response()->json($todos);
     }
 
@@ -37,6 +51,9 @@ class TodoController extends Controller
 
         // Ensure completed defaults to false if not provided
         $validated['completed'] = $validated['completed'] ?? false;
+        
+        // Assign user_id to the authenticated user
+        $validated['user_id'] = Auth::id();
 
         $todo = Todo::create($validated);
         return response()->json($todo, 201);
@@ -47,6 +64,11 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
+        // Check if the todo belongs to the authenticated user
+        if ($todo->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
         return response()->json($todo);
     }
 
@@ -63,6 +85,11 @@ class TodoController extends Controller
      */
     public function update(Request $request, Todo $todo)
     {
+        // Check if the todo belongs to the authenticated user
+        if ($todo->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -78,6 +105,11 @@ class TodoController extends Controller
      */
     public function destroy(Todo $todo)
     {
+        // Check if the todo belongs to the authenticated user
+        if ($todo->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
         $todo->delete();
         return response()->json(null, 204);
     }

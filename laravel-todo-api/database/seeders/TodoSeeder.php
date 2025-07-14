@@ -67,11 +67,16 @@ class TodoSeeder extends Seeder
             ]
         ];
 
+        // Get the first user (Test User) or create one if none exists
+        $user = \App\Models\User::first() ?: \App\Models\User::factory()->create();
+
         foreach ($todos as $todo) {
+            // Assign todos to the first user
+            $todo['user_id'] = $user->id;
             Todo::create($todo);
         }
 
-        // Also create some additional random todos using the factory
-        Todo::factory()->count(5)->create();
+        // Also create some additional random todos using the factory with the user_id
+        Todo::factory()->count(5)->create(['user_id' => $user->id]);
     }
 }

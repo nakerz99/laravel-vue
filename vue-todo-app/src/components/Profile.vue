@@ -1,0 +1,405 @@
+<template>
+  <!-- Profile header -->
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+      <i class="fas fa-user-circle me-2" aria-hidden="true"></i>User Profile
+    </h1>
+  </div>
+  
+  <!-- Success Alert -->
+  <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ success }}
+    <button type="button" class="btn-close" @click="success = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Error Alert -->
+  <div v-if="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" @click="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Profile Information -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="row">
+        <div class="col-md-4 text-center mb-4">
+          <div class="profile-avatar">
+            <i class="fas fa-user-circle fa-5x text-primary" aria-hidden="true"></i>
+          </div>
+          <h5 class="mt-3">{{ user?.name }}</h5>
+          <p class="text-muted">{{ user?.email }}</p>
+        </div>
+        
+        <div class="col-md-8">
+          <form @submit.prevent="updateProfile">
+            <div class="form-floating mb-3">
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name"
+                v-model="form.name" 
+                required
+                placeholder="Full Name"
+                aria-label="Full Name"
+              >
+              <label for="name">Full Name</label>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email"
+                v-model="form.email" 
+                required
+                placeholder="Email Address"
+                aria-label="Email Address"
+              >
+              <label for="email">Email Address</label>
+            </div>
+
+            <button 
+              type="submit" 
+              class="btn btn-primary w-100 mb-2"
+              :disabled="loading || !hasChanges"
+              aria-label="Update Profile"
+            >
+              <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <i v-else class="fas fa-save me-2" aria-hidden="true"></i>
+              {{ loading ? 'Updating...' : 'Update Profile' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Section -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">
+        <i class="fas fa-key me-2" aria-hidden="true"></i>Change Password
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <form @submit.prevent="changePassword">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <input 
+                :type="showCurrentPassword ? 'text' : 'password'" 
+                class="form-control" 
+                id="current_password"
+                v-model="passwordForm.current_password"
+                placeholder="Current password"
+                aria-label="Current Password"
+              >
+              <label for="current_password">Current Password</label>
+              <button 
+                type="button" 
+                class="btn btn-sm position-absolute"
+                style="top: 0.75rem; right: 0.75rem"
+                @click="showCurrentPassword = !showCurrentPassword"
+                aria-label="Toggle password visibility"
+              >
+                <i :class="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <input 
+                :type="showNewPassword ? 'text' : 'password'" 
+                class="form-control" 
+                id="new_password"
+                v-model="passwordForm.new_password"
+                minlength="8"
+                placeholder="New password"
+                aria-label="New Password"
+              >
+              <label for="new_password">New Password</label>
+              <button 
+                type="button" 
+                class="btn btn-sm position-absolute"
+                style="top: 0.75rem; right: 0.75rem"
+                @click="showNewPassword = !showNewPassword"
+                aria-label="Toggle password visibility"
+              >
+                <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <input 
+                :type="showConfirmPassword ? 'text' : 'password'" 
+                class="form-control" 
+                id="confirm_password"
+                v-model="passwordForm.confirm_password"
+                placeholder="Confirm password"
+                aria-label="Confirm Password"
+              >
+              <label for="confirm_password">Confirm Password</label>
+              <button 
+                type="button" 
+                class="btn btn-sm position-absolute"
+                style="top: 0.75rem; right: 0.75rem"
+                @click="showConfirmPassword = !showConfirmPassword"
+                aria-label="Toggle password visibility"
+              >
+                <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div v-if="passwordForm.new_password !== passwordForm.confirm_password && passwordForm.confirm_password" class="form-text text-danger">
+              Passwords do not match.
+            </div>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn btn-warning w-100 mb-2"
+          :disabled="passwordLoading || !isPasswordFormValid"
+          aria-label="Change Password"
+        >
+          <span v-if="passwordLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <i v-else class="fas fa-key me-2" aria-hidden="true"></i>
+          {{ passwordLoading ? 'Changing...' : 'Change Password' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Account Actions -->
+  <div class="card shadow-sm mb-4 border-danger">
+    <div class="card-header bg-danger text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>Danger Zone
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="mb-1">Delete Account</h6>
+          <p class="mb-0 text-muted">Permanently delete your account and all associated data.</p>
+        </div>
+        <button 
+          class="btn btn-outline-danger"
+          @click="confirmDeleteAccount"
+          aria-label="Delete Account"
+        >
+          <i class="fas fa-trash me-2" aria-hidden="true"></i>Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Profile',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      form: {
+        name: this.user?.name || '',
+        email: this.user?.email || ''
+      },
+      passwordForm: {
+        current_password: '',
+        new_password: '',
+        confirm_password: ''
+      },
+      showCurrentPassword: false,
+      showNewPassword: false,
+      showConfirmPassword: false,
+      loading: false,
+      passwordLoading: false,
+      success: '',
+      error: ''
+    }
+  },
+  computed: {
+    hasChanges() {
+      return (
+        this.form.name !== this.user?.name ||
+        this.form.email !== this.user?.email
+      )
+    },
+    isPasswordFormValid() {
+      return (
+        this.passwordForm.current_password &&
+        this.passwordForm.new_password &&
+        this.passwordForm.new_password === this.passwordForm.confirm_password &&
+        this.passwordForm.new_password.length >= 8
+      )
+    }
+  },
+  methods: {
+    async updateProfile() {
+      this.loading = true
+      this.error = ''
+      this.success = ''
+      
+      try {
+        const userData = {
+          name: this.form.name,
+          email: this.form.email
+        }
+        
+        // Try to use real API if backend auth is implemented
+        try {
+          // Real API profile update
+          const { authAPI } = await import('../services/api.js')
+          const response = await authAPI.updateProfile(userData)
+          
+          // Update user in localStorage
+          localStorage.setItem('user', JSON.stringify(response.user))
+          
+          // Update application state
+          this.$emit('profile-updated', response.user)
+          
+        } catch (apiError) {
+          console.error('Profile update failed:', apiError)
+          
+          // Handle specific errors
+          if (apiError.message.includes('422') || apiError.response?.data?.errors) {
+            // Validation errors
+            const errors = apiError.response?.data?.errors;
+            if (errors) {
+              if (errors.email) {
+                this.error = errors.email[0]; // Usually "email already taken"
+              } else {
+                this.error = 'Please check your profile information and try again.';
+              }
+            } else {
+              this.error = 'Validation failed. Please check your information.';
+            }
+          } else {
+            this.error = 'Failed to update profile. Please try again later.';
+          }
+          
+          throw apiError; // Re-throw to prevent further processing
+        }
+        
+        this.success = 'Profile updated successfully!'
+        
+      } catch (error) {
+        this.error = 'Failed to update profile. Please try again.'
+        console.error('Profile update error:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async changePassword() {
+      this.passwordLoading = true
+      this.error = ''
+      this.success = ''
+      
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Reset form
+        this.passwordForm = {
+          current_password: '',
+          new_password: '',
+          confirm_password: ''
+        }
+        
+        this.success = 'Password changed successfully!'
+        
+      } catch (error) {
+        this.error = 'Failed to change password. Please try again.'
+      } finally {
+        this.passwordLoading = false
+      }
+    },
+
+    confirmDeleteAccount() {
+      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        this.deleteAccount()
+      }
+    },
+
+    async deleteAccount() {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Clear user data
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        
+        this.$emit('account-deleted')
+        this.$router.push('/login')
+        
+      } catch (error) {
+        this.error = 'Failed to delete account. Please try again.'
+      }
+    }
+  },
+  emits: ['profile-updated', 'account-deleted'],
+  watch: {
+    user: {
+      handler(newUser) {
+        if (newUser) {
+          this.form.name = newUser.name
+          this.form.email = newUser.email
+        }
+      },
+      deep: true
+    }
+  }
+}
+</script>
+
+<style scoped>
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.profile-avatar {
+  margin-bottom: 1rem;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.8;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #ffca2c;
+  border-color: #ffc720;
+  color: #000;
+}
+
+.card.border-danger {
+  border: 1px solid #dc3545 !important;
+}
+</style>

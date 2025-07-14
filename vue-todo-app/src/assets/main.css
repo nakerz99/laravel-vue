@@ -1,7 +1,7 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
+  /* Removed max-width to allow Bootstrap's container system to control the layout */
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
@@ -21,15 +21,12 @@ a,
   }
 }
 
+/* 
+ * Removed the grid layout that was causing layout issues
+ * The layout is now handled by Bootstrap's responsive classes
+ */
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
 }

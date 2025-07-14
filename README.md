@@ -1,6 +1,6 @@
 # Laravel + Vue.js Todo Application
 
-A full-stack Todo application built with Laravel 11 backend API and Vue.js 3 frontend, featuring complete CRUD functionality with modern UI and responsive design.
+A full-stack Todo application built with Laravel 11 backend API and Vue.js 3 frontend, featuring complete CRUD functionality with modern UI and responsive design. The application now includes authentication with login, registration, and user profile pages.
 
 ## 🚀 Project Overview
 
@@ -13,15 +13,20 @@ This project consists of two separate applications:
 
 ### Backend (Laravel 11)
 - ✅ RESTful API with CRUD operations
+- ✅ User authentication with Laravel Sanctum
+- ✅ User-specific todo items
 - ✅ MySQL database with migrations
 - ✅ Input validation and error handling
 - ✅ CORS configured for frontend communication
 
 ### Frontend (Vue.js 3)
 - ✅ Modern, responsive UI with Bootstrap 5
+- ✅ Authentication with login, registration, and profile management
 - ✅ Create, edit, delete, and toggle todos
 - ✅ Filter todos by status (All, Pending, Completed)
 - ✅ Real-time feedback and error handling
+- ✅ Modal-based authentication forms
+- ✅ Responsive design for mobile, tablet, and desktop
 - ✅ JavaScript only (no TypeScript)
 
 ## 🛠️ Tech Stack
@@ -29,13 +34,44 @@ This project consists of two separate applications:
 ### Backend
 - **Laravel 11** - PHP framework
 - **MySQL** - Database
-- **PHP 8.2+** - Programming language
+- **Sanctum** - API authentication
 
 ### Frontend
 - **Vue.js 3** - JavaScript framework
-- **Vite** - Build tool and dev server
 - **Bootstrap 5** - CSS framework
 - **Axios** - HTTP client
+- **Font Awesome** - Icon library
+
+## 🔐 Authentication
+
+The application now supports user authentication with the following features:
+
+- **User Registration**: Create a new account with name, email, and password
+- **User Login**: Authenticate with email and password
+- **User Profile**: View and update your profile information
+- **Todo Ownership**: Users can only see and manage their own todo items
+
+### How Authentication Works
+
+1. When a user registers or logs in, the backend returns a token
+2. The token is stored in the browser's localStorage
+3. All API requests include the token in the Authorization header
+4. Protected routes in Laravel verify the token for each request
+5. Todo items are filtered by the authenticated user's ID
+
+## 📱 Responsive Design
+
+The application is fully responsive and works well on:
+
+- Mobile devices (small screens)
+- Tablets (medium screens)
+- Desktops (large screens)
+- Wide screens (with max-width constraints for optimal readability)
+
+The layout automatically adjusts based on screen size:
+- Single column layout on mobile devices
+- Two-column layout on larger screens (form on the left, list on the right)
+- Maximum width constraints on ultra-wide screens for better readability
 
 ## 📋 Prerequisites
 
@@ -99,6 +135,7 @@ laraveVue/
 ├── laravel-todo-api/          # Laravel backend
 │   ├── app/
 │   │   ├── Http/Controllers/TodoController.php
+│   │   ├── Http/Controllers/AuthController.php
 │   │   └── Models/Todo.php
 │   ├── database/
 │   │   ├── migrations/
@@ -115,6 +152,10 @@ laraveVue/
 │   │   │   ├── TodoForm.vue
 │   │   │   ├── TodoItem.vue
 │   │   │   └── TodoList.vue
+│   │   ├── views/
+│   │   │   ├── Login.vue
+│   │   │   ├── Register.vue
+│   │   │   └── Profile.vue
 │   │   ├── services/api.js
 │   │   ├── App.vue
 │   │   └── main.js
@@ -131,14 +172,20 @@ laraveVue/
 | GET | `/api/todos/{id}` | Get a specific todo |
 | PUT | `/api/todos/{id}` | Update a todo |
 | DELETE | `/api/todos/{id}` | Delete a todo |
+| POST | `/api/register` | Register a new user |
+| POST | `/api/login` | Authenticate a user |
+| GET | `/api/user` | Get authenticated user details |
 
 ## 🎯 Usage
 
-1. **Add Todo**: Fill out the form with title and optional description
-2. **Edit Todo**: Click "Edit" button on any todo item
-3. **Complete Todo**: Click "Complete" to mark as done
-4. **Filter Todos**: Use the filter buttons to view All, Pending, or Completed todos
-5. **Delete Todo**: Click "Delete" with confirmation
+1. **Register**: Create a new account with email and password
+2. **Login**: Access your account using email and password
+3. **Add Todo**: Fill out the form with title and optional description
+4. **Edit Todo**: Click "Edit" button on any todo item
+5. **Complete Todo**: Click "Complete" to mark as done
+6. **Filter Todos**: Use the filter buttons to view All, Pending, or Completed todos
+7. **Delete Todo**: Click "Delete" with confirmation
+8. **Logout**: End your session and return to the login page
 
 ## 🧪 Testing
 
@@ -161,6 +208,7 @@ php artisan test --coverage
 - ✅ **Feature Tests**: Complete API endpoint testing (CRUD operations)
 - ✅ **Validation Tests**: Input validation and error handling
 - ✅ **Database Tests**: Data persistence and retrieval
+- ✅ **Authentication Tests**: User registration, login, and profile access
 
 ### Frontend Testing
 ```bash
@@ -173,14 +221,14 @@ cd vue-todo-app
 
 ### Backend Development
 - API routes defined in `routes/api.php`
-- Controller logic in `app/Http/Controllers/TodoController.php`
+- Controller logic in `app/Http/Controllers/TodoController.php` and `app/Http/Controllers/AuthController.php`
 - Model in `app/Models/Todo.php`
 - Database schema in `database/migrations/`
 - Sample data seeder in `database/seeders/TodoSeeder.php`
 
 ### Frontend Development
 - Main app component: `src/App.vue`
-- Individual components in `src/components/`
+- Individual components in `src/components/` and `src/views/`
 - API service: `src/services/api.js`
 - Styling with Bootstrap 5
 
@@ -198,6 +246,9 @@ DB_PASSWORD=qweqweqwe
 
 ### CORS Configuration
 CORS is automatically configured in Laravel to allow requests from the Vue frontend.
+
+### Authentication Configuration
+Laravel Sanctum is used for API token authentication. The frontend communicates with the backend using Axios to handle login, registration, and todo CRUD operations.
 
 ### Sample Data
 The application includes a seeder that creates 15 sample todos:
@@ -219,12 +270,14 @@ php artisan migrate:fresh --seed
 1. **Database Connection**: Verify MySQL credentials in `.env`
 2. **Port Conflicts**: Change ports if 8000 or 5174 are in use
 3. **API Connection**: Ensure backend is running before starting frontend
+4. **Authentication Errors**: Check if the user is registered and credentials are correct
 
 ### Solutions
 
 - Check both servers are running
 - Verify database connection
 - Check browser console for errors
+- Use Postman or similar tool to test API endpoints directly
 
 ## 🤝 Contributing
 

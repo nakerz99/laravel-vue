@@ -1,8 +1,8 @@
 <template>
   <div class="card mb-3">
     <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start">
-        <div class="flex-grow-1">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+        <div class="flex-grow-1 mb-3 mb-md-0">
           <h5 class="card-title" :class="{ 'text-decoration-line-through text-muted': todo.completed }">
             {{ todo.title }}
           </h5>
@@ -13,7 +13,7 @@
             Created: {{ formatDate(todo.created_at) }}
           </small>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2 align-self-md-start">
           <button 
             @click="toggleComplete" 
             class="btn btn-sm"

@@ -26,7 +26,7 @@
             placeholder="Enter todo description (optional)"
           ></textarea>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
           <button type="submit" class="btn btn-primary">
             {{ isEditing ? 'Update' : 'Add' }} Todo
           </button>

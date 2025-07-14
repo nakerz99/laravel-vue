@@ -13,9 +13,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
-    "vue": "^3.5.17"
+    "bootstrap-icons": "^1.13.1",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

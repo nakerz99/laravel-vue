@@ -20,6 +20,7 @@ class TodoFactory extends Factory
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->optional()->paragraph(),
             'completed' => $this->faker->boolean(20), // 20% chance of being completed
+            'user_id' => 1, // Default to the first user (Test User)
         ];
     }
 
