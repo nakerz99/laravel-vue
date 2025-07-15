@@ -14,11 +14,13 @@ class Todo extends Model
         'title',
         'description',
         'completed',
-        'user_id'
+        'user_id',
+        'due_date' 
     ];
 
     protected $casts = [
-        'completed' => 'boolean'
+        'completed' => 'boolean',
+        'due_date' => 'date'
     ];
 
     protected $attributes = [

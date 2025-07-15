@@ -13,9 +13,7 @@ class TodoController extends Controller
      * Note: We're using the auth:sanctum middleware in the routes file
      * so we don't need to apply it here
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Display a listing of the resource.
@@ -24,9 +22,10 @@ class TodoController extends Controller
     {
         // Get todos for the authenticated user
         $todos = Todo::where('user_id', Auth::id())
-                     ->orderBy('created_at', 'desc')
-                     ->get();
-        
+            ->orderBy('due_date', 'desc') // Sort by due date first
+            ->orderBy('created_at', 'desc') // Then by creation date
+            ->get();
+
         return response()->json($todos);
     }
 
@@ -46,12 +45,13 @@ class TodoController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'sometimes|boolean'
+            'completed' => 'sometimes|boolean',
+            'due_date' => 'nullable|date'
         ]);
 
         // Ensure completed defaults to false if not provided
         $validated['completed'] = $validated['completed'] ?? false;
-        
+
         // Assign user_id to the authenticated user
         $validated['user_id'] = Auth::id();
 
@@ -68,7 +68,7 @@ class TodoController extends Controller
         if ($todo->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        
+
         return response()->json($todo);
     }
 
@@ -89,11 +89,12 @@ class TodoController extends Controller
         if ($todo->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'sometimes|boolean'
+            'completed' => 'sometimes|boolean',
+            'due_date' => 'nullable|date'
         ]);
 
         $todo->update($validated);
@@ -109,7 +110,7 @@ class TodoController extends Controller
         if ($todo->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        
+
         $todo->delete();
         return response()->json(null, 204);
     }

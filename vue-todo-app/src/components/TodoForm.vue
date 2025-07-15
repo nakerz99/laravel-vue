@@ -26,6 +26,16 @@
             placeholder="Enter todo description (optional)"
           ></textarea>
         </div>
+        <div class="mb-3">
+          <label for="due_date" class="form-label">Due Date</label>
+          <input 
+            type="date" 
+            class="form-control" 
+            id="due_date"
+            v-model="form.due_date"
+            placeholder="Select a due date (optional)"
+          >
+        </div>
         <div class="d-flex flex-wrap gap-2">
           <button type="submit" class="btn btn-primary">
             {{ isEditing ? 'Update' : 'Add' }} Todo
@@ -54,7 +64,8 @@ export default {
       form: {
         title: '',
         description: '',
-        completed: false
+        completed: false,
+        due_date: ''
       }
     }
   },
@@ -80,7 +91,8 @@ export default {
       const todoData = {
         title: this.form.title,
         description: this.form.description,
-        completed: this.form.completed
+        completed: this.form.completed,
+        due_date: this.form.due_date
       }
       
       this.$emit('submit', todoData)
@@ -93,7 +105,8 @@ export default {
       this.form = {
         title: '',
         description: '',
-        completed: false
+        completed: false,
+        due_date: ''
       }
       this.$emit('cancel')
     }

@@ -9,9 +9,14 @@
           <p class="card-text" :class="{ 'text-muted': todo.completed }" v-if="todo.description">
             {{ todo.description }}
           </p>
-          <small class="text-muted">
-            Created: {{ formatDate(todo.created_at) }}
-          </small>
+          <div>
+            <small class="text-muted me-3">
+              Created: {{ formatDate(todo.created_at) }}
+            </small>
+            <small class="text-muted" v-if="todo.due_date">
+              <strong :class="isDueDateOverdue ? 'text-danger' : ''">Due: {{ formatDate(todo.due_date) }}</strong>
+            </small>
+          </div>
         </div>
         <div class="d-flex flex-wrap gap-2 align-self-md-start">
           <button 
@@ -43,6 +48,14 @@ export default {
     }
   },
   emits: ['toggle', 'edit', 'delete'],
+  computed: {
+    isDueDateOverdue() {
+      if (!this.todo.due_date) return false;
+      const today = new Date();
+      const dueDate = new Date(this.todo.due_date);
+      return !this.todo.completed && dueDate < today;
+    }
+  },
   methods: {
     toggleComplete() {
       this.$emit('toggle', this.todo.id, !this.todo.completed)

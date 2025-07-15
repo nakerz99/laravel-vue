@@ -9,6 +9,7 @@ describe('TodoForm.vue', () => {
     expect(wrapper.find('h5').text()).toBe('Add New Todo')
     expect(wrapper.find('input[type="text"]').element.value).toBe('')
     expect(wrapper.find('textarea').element.value).toBe('')
+    expect(wrapper.find('input[type="date"]').element.value).toBe('')
     expect(wrapper.find('button[type="submit"]').text()).toBe('Add Todo')
   })
 
@@ -16,7 +17,8 @@ describe('TodoForm.vue', () => {
     const editingTodo = {
       id: 1,
       title: 'Edit Todo',
-      description: 'Edit description'
+      description: 'Edit description',
+      due_date: '2025-08-15'
     }
 
     const wrapper = mount(TodoForm, {
@@ -26,6 +28,7 @@ describe('TodoForm.vue', () => {
     expect(wrapper.find('h5').text()).toBe('Edit Todo')
     expect(wrapper.find('input[type="text"]').element.value).toBe('Edit Todo')
     expect(wrapper.find('textarea').element.value).toBe('Edit description')
+    expect(wrapper.find('input[type="date"]').element.value).toBe('2025-08-15')
     expect(wrapper.find('button[type="submit"]').text()).toBe('Update Todo')
   })
 
@@ -47,13 +50,15 @@ describe('TodoForm.vue', () => {
 
     await wrapper.find('input[type="text"]').setValue('Test Todo')
     await wrapper.find('textarea').setValue('Test Description')
+    await wrapper.find('input[type="date"]').setValue('2025-08-01')
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(wrapper.emitted('submit')).toBeTruthy()
     expect(wrapper.emitted('submit')[0]).toEqual([{
       title: 'Test Todo',
       description: 'Test Description',
-      completed: false
+      completed: false,
+      due_date: '2025-08-01'
     }])
   })
 
@@ -62,7 +67,8 @@ describe('TodoForm.vue', () => {
       id: 1,
       title: 'Original Title',
       description: 'Original Description',
-      completed: false
+      completed: false,
+      due_date: '2025-07-20'
     }
 
     const wrapper = mount(TodoForm, {
@@ -71,6 +77,7 @@ describe('TodoForm.vue', () => {
 
     await wrapper.find('input[type="text"]').setValue('Updated Title')
     await wrapper.find('textarea').setValue('Updated Description')
+    await wrapper.find('input[type="date"]').setValue('2025-07-25')
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(wrapper.emitted('submit')).toBeTruthy()
@@ -78,7 +85,8 @@ describe('TodoForm.vue', () => {
     expect(wrapper.emitted('submit')[0]).toEqual([{
       title: 'Updated Title',
       description: 'Updated Description',
-      completed: false
+      completed: false,
+      due_date: '2025-07-25'
     }])
   })
 
@@ -92,7 +100,8 @@ describe('TodoForm.vue', () => {
     expect(wrapper.emitted('submit')[0]).toEqual([{
       title: '',
       description: '',
-      completed: false
+      completed: false,
+      due_date: ''
     }])
   })
 
